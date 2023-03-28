@@ -95,3 +95,11 @@ h1 {
   margin-left: 2px;
   color: gray;
 }
+
+#delete-task:hover {
+  cursor: pointer;
+}
+
+.delete-task {
+  display: inline-block;
+}
