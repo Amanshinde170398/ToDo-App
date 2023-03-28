@@ -1,10 +1,23 @@
 "use strict";
 
 let tasks = [];
-
 const tasksList = document.getElementById("list");
 const addTaskInput = document.getElementById("add");
 const taskCounter = document.getElementById("tasks-counter");
+
+function fetchToDo() {
+  fetch("https://jsonplaceholder.typicode.com/todos")
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+      tasks = data.slice(0, 10);
+      renderList();
+    })
+    .catch((error) => {
+      error: error;
+    });
+}
 
 function addDomTask(task, taskCount) {
   let list = document.createElement("li");
@@ -13,11 +26,11 @@ function addDomTask(task, taskCount) {
   type="checkbox"
   id="task-${taskCount}"
   data-task-id="${task.id}"
-  class="custom-checkbox" ${task.done ? "checked" : ""}/>
-  <label for="task-${taskCount}">${task.text}</label>
-  <div class="delete-task" data-task-id=${task.id}>
-    <i class="fa-solid fa-trash"></i>
-  </div>
+  class="custom-checkbox" ${task.completed ? "checked" : ""}/>
+  <label for="task-${taskCount}">${task.title}</label>
+  <img class="delete-task" data-task-id=${
+    task.id
+  } src="bin.png" width="20px" height="20px">
   `;
   tasksList.append(list);
   taskCounter.innerHTML = tasks.length;
@@ -41,11 +54,11 @@ function renderList() {
  */
 function markTaskAsCompleted(taskId) {
   let task = tasks.filter((task) => {
-    return task.id === taskId;
+    return task.id == taskId;
   });
 
   if (task.length > 0) {
-    task[0]["done"] = true;
+    task[0]["completed"] = true;
     renderList();
     showNotification("Task Completed Successfully.");
   } else {
@@ -60,7 +73,7 @@ function markTaskAsCompleted(taskId) {
  */
 function deleteTask(taskId) {
   let newTasks = tasks.filter((task) => {
-    return task.id !== taskId;
+    return task.id != taskId;
   });
   tasks = newTasks;
   renderList();
@@ -101,9 +114,9 @@ function handleInputKeyPress(e) {
     }
 
     const taskList = {
-      text: text,
+      title: text,
       id: Date.now().toString(),
-      done: false,
+      completed: false,
     };
     addTask(taskList);
     e.target.value = "";
@@ -112,8 +125,6 @@ function handleInputKeyPress(e) {
 
 function handleClickEvent(e) {
   let target = e.target;
-  console.log(target);
-  console.log(target.dataset);
   let className = target.className;
   switch (className) {
     case "custom-checkbox":
@@ -127,5 +138,10 @@ function handleClickEvent(e) {
   }
 }
 
-addTaskInput.addEventListener("keyup", handleInputKeyPress);
-document.addEventListener("click", handleClickEvent);
+function initialize() {
+  fetchToDo();
+  addTaskInput.addEventListener("keyup", handleInputKeyPress);
+  document.addEventListener("click", handleClickEvent);
+}
+
+initialize();
